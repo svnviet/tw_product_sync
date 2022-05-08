@@ -1,0 +1,93 @@
+<odoo>
+    <record id="bru_connection_tree_view" model="ir.ui.view">
+        <field name="name">bru.connection.tree.view</field>
+        <field name="model">bru.connection</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="store_shopbase_form_view" model="ir.ui.view">
+        <field name="name">bru.connection.form.view</field>
+        <field name="model">bru.connection</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="test_connection" string="Test Connection" type="object" class="oe_highlight"/>
+                    <button name="sync_product_bru" string="Sync Product" type="object" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <group col="2">
+                        <field name="product_id"/>
+                        <field name="name"/>
+                        <field name="bearer_token"/>
+                    </group>
+                    <group col="4">
+                        <field name="url_product"/>
+                        <field name="url_asset"/>
+                    </group>
+                    <field name="subscription_key">
+                        <tree editable="bottom">
+                            <field name="subscription_key"/>
+                            <field name="type_key"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="bru_connection_menu_action" model="ir.actions.act_window">
+        <field name="name">TwinBru</field>
+        <field name="res_model">bru.connection</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="bru_connection_base_menu" name="TwinBru" sequence="15"/>
+
+    <menuitem id="bru_connection"
+              name="TwinBru Connector"
+              parent="bru_connection_base_menu"
+              action="bru_connection_menu_action"
+              sequence="0"/>
+
+
+    <record id="action_orders_product_image_form_view" model="ir.ui.view">
+        <field name="name">product.image</field>
+        <field name="model">product.image</field>
+        <field name="arch" type="xml">
+            <form string="Product Public">
+                <field name="image" widget="handle"/>
+                <field name="product_tmpl_id"/>
+                <field name="already_resized"/>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="action_orders_product_image_tree_view" model="ir.ui.view">
+        <field name="name">product.image</field>
+        <field name="model">product.image</field>
+        <field name="arch" type="xml">
+            <tree string="Product Public">
+                <field name="image" widget="handle"/>
+                <field name="product_tmpl_id"/>
+                <field name="already_resized"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_orders_product_image" model="ir.actions.act_window">
+        <field name="name">Product Image</field>
+        <field name="res_model">product.image</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_product_image" name="Product Images"
+              action="action_orders_product_image"
+              parent="website_sale.menu_product_settings" sequence="1"/>
+
+
+</odoo>
