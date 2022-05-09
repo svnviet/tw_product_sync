@@ -13,7 +13,11 @@ class ProductTemplate(models.Model):
     bru_collection_id = fields.Many2one('bru.collection')
 
     def sync_product_bru(self):
-        self.with_delay(description=f'batch count for sync').sync_product_batch(1, 2)
+        for page in range(0, 30):
+            if page == 0:
+                self.with_delay(description=f'batch count for sync').sync_product_batch(1, 11)
+            else:
+                self.with_delay(description=f'batch count for sync').sync_product_batch(page * 10, page * 10 + 11)
 
     @api.multi
     @job
