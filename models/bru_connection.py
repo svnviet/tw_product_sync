@@ -2,12 +2,6 @@ from odoo import models, fields, _
 import requests
 from odoo.exceptions import AccessError, UserError, ValidationError
 
-name = 'TEST'
-Token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnQiOiJicnV0ZXgiLCJhY2Nlc3NvciI6ImFwaU1hbmFnZW1lbnQiLCJhY2NvdW50SWQiOiJCUlUtMjUxMC0xMDA0NDIiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTk0MDY4NTg4Nn0.pZ4yeHfU7nt0eiOFaAaI-qfusW1VAiRrPMEiyqi3UGs'
-product_url = 'https://api.twinbru.com'
-ods_asset_url = 'https://api.twinbru.com/ods/item-read/v1/api'
-ods_asset = '970d991aeb77495fa7f289d28c7e350a'
-product = 'd91ae39b7808439585bc82a7aaba1a8f'
 
 class BruConnection(models.Model):
     _name = 'bru.connection'
@@ -22,6 +16,8 @@ class BruConnection(models.Model):
     total_product = fields.Integer()
 
     def test_connection(self):
+        # for i in self.env['queue.job'].search([]):
+        #     i.unlink()
         url = "https://api.twinbru.com/products/68298"
         url_ods = "https://api.twinbru.com/ods/asset-read/v1/api/Assets/Asset/eb883017-c051-418b-b7af-ac37008515bb/Large"
         try:
@@ -35,7 +31,6 @@ class BruConnection(models.Model):
             self.total_product = r.json().get('totalItemCount')
         else:
             raise ValidationError(_("Connection Failed"))
-        raise ValidationError(_("Connecting"))
 
     def get_header(self, type='product'):
         headers = {

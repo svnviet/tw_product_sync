@@ -13,17 +13,23 @@ class ProductTemplate(models.Model):
     bru_collection_id = fields.Many2one('bru.collection')
 
     def sync_product_bru(self):
-        self.with_delay(description=f'batch count for sync').sync_product_batch(1, 2)
+        for page in range(0, 24):
+            if page == 0:
+                self.with_delay(description=f'batch count for sync').sync_product_batch(1, 11)
+            else:
+                self.with_delay(description=f'batch count for sync').sync_product_batch(page * 10, page * 10 + 11)
 
     @api.multi
     @job
     def sync_product_batch(self, from_page, to_page):
         for page in range(from_page, to_page):
+            # print('ok')
             self.with_delay(description=f'Page sync product {page}').sync_product_bru_url(page, 50)
 
     @api.multi
     @job
     def sync_product_bru_url(self, page, size):
+        print('sync ' + str(page))
         url = f"https://api.twinbru.com/products?page={page}&pageSize={size}"
         payload = {}
         headers = {
@@ -39,10 +45,6 @@ class ProductTemplate(models.Model):
             raise UserWarning('Please check connection')
         for product_data in data.get('results'):
             bru_product_id = product_data.get('item').get('id')
-            # check duplicate product sync from twinbru
-            is_duplicate_product = self.check_duplicate_product_tw(bru_product_id)
-            if is_duplicate_product:
-                continue
             exits_product = self.env['product.template'].search([('product_tw_id', '=', bru_product_id)])
             if exits_product:
                 for product in exits_product:
@@ -147,6 +149,7 @@ class ProductTemplate(models.Model):
         collection = self.env['bru.collection']
         collection_exist = self.env['bru.collection'].search([('bru_id', '=', product.get('collectionId'))])
         if collection_exist:
+            # collection_exist.unlink()
             odoo_product.write({
                 'bru_collection_id': collection_exist.id,
             })
@@ -183,7 +186,6 @@ class ProductTemplate(models.Model):
             'name': name,
             'product_tw_id': product.get('id'),
             'type': 'product',
-            'barcode': 'BRU00' + product.get('id')
         })
         self.set_product_attribute_line_tw(odoo_product, product)
         self.with_delay(description=f'Get or Create Bru Collection bru id{bru_collection}').get_or_create_bru_collection(product, odoo_product)
@@ -281,10 +283,3 @@ class ProductTemplate(models.Model):
             ('Color', data.get('main_colour_type_description')),
             ('Family Color', 'other')
         ]
-
-    def check_duplicate_product_tw(self, product_tw_id):
-        product_obj = self.env['product.template']
-        product_tmpl_ids = product_obj.search([('product_tw_id', '=', product_tw_id)])
-        if len(product_tmpl_ids) > 1:
-            return True
-        return False
