@@ -81,7 +81,7 @@ class ProductTemplate(models.Model):
                 asset_type = image.get('item').get('assetType')
                 image_obj.create({
                     'bru_id': bru_id,
-                    'key': image.get('item').get('renditions')[0].get('key'),
+                    'key': image.get('item').get('renditions')[0].get('key') if image.get('item').get('renditions') else '',
                     'bru_product_id': tw_sale_id,
                     'odoo_product_id': odoo_product.id or '',
                     'name': image.get('assetName') or '',
