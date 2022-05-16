@@ -83,10 +83,10 @@ class ProductTemplate(models.Model):
                     'bru_id': bru_id,
                     'key': image.get('item').get('renditions')[0].get('key'),
                     'bru_product_id': tw_sale_id,
-                    'odoo_product_id': odoo_product.id,
-                    'name': image.get('assetName'),
-                    'asset_type': asset_type,
-                    'render_scene': render_scene,
+                    'odoo_product_id': odoo_product.id or '',
+                    'name': image.get('assetName') or '',
+                    'asset_type': asset_type or '',
+                    'render_scene': render_scene or '',
                 })
         odoo_product.bru_image_info.update_image_sequence()
         odoo_product.with_delay(description=f'Sync image for product {tw_sale_id}').get_image_by_product()
@@ -191,7 +191,8 @@ class ProductTemplate(models.Model):
         })
         self.set_product_attribute_line_tw(odoo_product, product)
         self.with_delay(description=f'Get or Create Bru Collection bru id{bru_collection}').get_or_create_bru_collection(product, odoo_product)
-        self.with_delay(description='Purpose bru image for sync').purpose_bru_image(product.get('id'), odoo_product)
+        self.with_delay(description='Purpose bru image for sync').
+        (product.get('id'), odoo_product)
         return odoo_product
 
     def get_brand_tw(self):
