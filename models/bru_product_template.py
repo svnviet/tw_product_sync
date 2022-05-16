@@ -191,8 +191,7 @@ class ProductTemplate(models.Model):
         })
         self.set_product_attribute_line_tw(odoo_product, product)
         self.with_delay(description=f'Get or Create Bru Collection bru id{bru_collection}').get_or_create_bru_collection(product, odoo_product)
-        self.with_delay(description='Purpose bru image for sync').
-        (product.get('id'), odoo_product)
+        self.with_delay(description='Purpose bru image for sync').purpose_bru_image(product.get('id'), odoo_product)
         return odoo_product
 
     def get_brand_tw(self):
