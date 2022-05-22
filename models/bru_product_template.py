@@ -81,12 +81,12 @@ class ProductTemplate(models.Model):
                 asset_type = image.get('item').get('assetType')
                 image_obj.create({
                     'bru_id': bru_id,
-                    'key': image.get('item').get('renditions')[0].get('key'),
+                    'key': image.get('item').get('renditions')[0].get('key') if image.get('item').get('renditions') else '',
                     'bru_product_id': tw_sale_id,
-                    'odoo_product_id': odoo_product.id,
-                    'name': image.get('assetName'),
-                    'asset_type': asset_type,
-                    'render_scene': render_scene,
+                    'odoo_product_id': odoo_product.id or '',
+                    'name': image.get('assetName') or '',
+                    'asset_type': asset_type or '',
+                    'render_scene': render_scene or '',
                 })
         odoo_product.bru_image_info.update_image_sequence()
         odoo_product.with_delay(description=f'Sync image for product {tw_sale_id}').get_image_by_product()
