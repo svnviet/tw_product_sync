@@ -123,15 +123,23 @@ class ProductTemplate(models.Model):
 	def update_family_color(self):
 		""" Update family color following var list mapping color """
 		product_attribute_value = self.env['product.attribute.value']
-		product_color = self.attribute_line_desc_ids.search(['attribute_id.name', '=', 'Color'])
-		product_attribute_color = self.env['product.attribute'].search(['name', '=', 'Family Color'])
-		product_family_color = self.attribute_line_desc_ids.search(['attribute_id.name', '=', 'Family Color'])
+		product_attribute_color = self.env['product.attribute'].search([('name', '=', 'Color')], limit=1)
+		product_attribute_ids = self.env['product.attribute'].search([('id', 'in', [att.attribute_id.id for att in self.attribute_line_desc_ids])])
+		product_color = product_attribute_ids.search([('name', '=', 'Color')], limit=1)
+		product_family_attribute_color = self.env['product.attribute'].search([('name', '=', 'Family Color')])
+		product_family_line_color = self.attribute_line_desc_ids.search([('attribute_id.name', '=', 'Family Color')])
 		product_family_color_value_ids = []
+		attribute_line_desc_id = self.attribute_line_desc_ids
 		if not product_color:
 			return False
-		if not product_family_color:
-			self.write({
-				'attribute_line_desc_ids': (4, product_attribute_color.id)
+		if not product_family_attribute_color:
+			product_family_attribute_color = self.env['product.attribute'].create({
+				'name': 'Family Color'
+			})
+		if not product_family_line_color:
+			product_family_line_color = self.attribute_line_desc_ids.create({
+				'product_tmpl_id': self.id,
+				'attribute_id' : product_family_attribute_color.id
 			})
 
 		color_name_list = [val.name.replace(' ', '') for val in product_color.value_ids]
@@ -140,13 +148,14 @@ class ProductTemplate(models.Model):
 				continue
 			family_color_list = var[color]
 			for family_color in family_color_list:
-				attribute_value_id = product_attribute_value.search(['name', '=', family_color])
+				attribute_value_id = product_attribute_value.search([('name', '=', family_color)])
 				if not attribute_value_id:
 					attribute_value_id = product_attribute_value.create({
-						'name': color
+						'attribute_id': product_attribute_color.id,
+						'name': family_color
 					})
 				product_family_color_value_ids.append(attribute_value_id)
 		if not product_family_color_value_ids:
 			return False
 
-		product_family_color.value_ids = (6, 0, [pc.id for pc in product_family_color_value_ids])
+		product_family_line_color.value_ids = [(6, 0, [pc.id for pc in product_family_color_value_ids])]
