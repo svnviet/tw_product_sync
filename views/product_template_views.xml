@@ -14,19 +14,5 @@
             <field name="binding_model_id" ref="model_product_template"/>
         </record>
 
-
-        <!-- Inherit Form View to Modify it -->
-        <record model="ir.ui.view" id="product_template_form_butt">
-            <field name="name">product.template.form</field>
-            <field name="model">product.template</field>
-            <field name="inherit_id" ref="product.product_template_only_form_view"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='name']" position="before">
-                    <button name="update_family_color" string="Test Connection" type="object" class="oe_highlight"/>
-                </xpath>
-            </field>
-        </record>
-
-
     </data>
 </odoo>
