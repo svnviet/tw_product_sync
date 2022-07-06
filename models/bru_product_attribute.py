@@ -111,7 +111,8 @@ var = {'08-Pure': ['White'],
 	   '13-Griffin': ['Gray', 'Brown'],
 	   '13-Pearl': ['White', 'Brown'],
 	   '14-Wool': ['Blue', 'Black'],
-	   '18-Fog': ['Brown', 'Gray']}
+	   '18-Fog': ['Brown', 'Gray'],
+       'Yellow': ['zxjzjkxvz']}
 
 class ProductAttribute(models.Model):
 	_inherit = 'product.attribute'
@@ -148,10 +149,10 @@ class ProductTemplate(models.Model):
 				continue
 			family_color_list = var[color]
 			for family_color in family_color_list:
-				attribute_value_id = product_attribute_value.search([('name', '=', family_color)])
+				attribute_value_id = product_attribute_value.search([('name', '=', family_color), ('attribute_id', '=', product_family_attribute_color.id)])
 				if not attribute_value_id:
 					attribute_value_id = product_attribute_value.create({
-						'attribute_id': product_attribute_color.id,
+						'attribute_id': product_family_attribute_color.id,
 						'name': family_color
 					})
 				product_family_color_value_ids.append(attribute_value_id)
