@@ -127,7 +127,7 @@ class ProductTemplate(models.Model):
 		product_attribute_color = self.env['product.attribute'].search([('name', '=', 'Color')], limit=1)
 		product_attribute_ids = self.env['product.attribute'].search([('id', 'in', [att.attribute_id.id for att in self.attribute_line_desc_ids])])
 		product_color = product_attribute_ids.search([('name', '=', 'Color')], limit=1)
-		product_family_attribute_color = self.env['product.attribute'].search([('name', '=', 'Family Color')])
+		product_family_attribute_color = self.env['product.attribute'].search([('name', '=', 'Family Color')], limit=1)
 		product_family_line_color = self.attribute_line_desc_ids.filtered(lambda r: r.attribute_id.name == 'Family Color')
 		product_family_color_value_ids = []
 		attribute_line_desc_id = self.attribute_line_desc_ids
@@ -149,13 +149,14 @@ class ProductTemplate(models.Model):
 				continue
 			family_color_list = var[color]
 			for family_color in family_color_list:
-				attribute_value_id = product_attribute_value.search([('name', '=', family_color), ('attribute_id', '=', product_family_attribute_color.id)])
+				attribute_value_id = product_attribute_value.search([('name', '=', family_color), ('attribute_id', '=', product_family_attribute_color.id)], limit=1)
 				if not attribute_value_id:
 					attribute_value_id = product_attribute_value.create({
 						'attribute_id': product_family_attribute_color.id,
 						'name': family_color
 					})
 				product_family_color_value_ids.append(attribute_value_id)
+				print(attribute_value_id.name)
 		if not product_family_color_value_ids:
 			return False
 
