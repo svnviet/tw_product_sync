@@ -120,8 +120,12 @@ class ProductAttribute(models.Model):
 
 class ProductTemplate(models.Model):
 	_inherit = 'product.template'
-
+	
 	def update_family_color(self):
+		for product in self.env['product.template'].search([]):
+			product.update_family_color_val()
+			
+	def update_family_color_val(self):
 		""" Update family color following var list mapping color """
 		product_attribute_value = self.env['product.attribute.value']
 		product_attribute_color = self.env['product.attribute'].search([('name', '=', 'Color')], limit=1)
