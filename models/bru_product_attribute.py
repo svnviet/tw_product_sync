@@ -1,5 +1,6 @@
-from odoo import models, api
-
+from odoo import models, api, fields
+import logging
+_logger = logging.getLogger(__name__)
 var = {'08-Pure': ['White'],
 	   '10-Ivory': ['White'],
 	   '09-Whisper': ['Brown', 'Yellow'],
@@ -111,8 +112,7 @@ var = {'08-Pure': ['White'],
 	   '13-Griffin': ['Gray', 'Brown'],
 	   '13-Pearl': ['White', 'Brown'],
 	   '14-Wool': ['Blue', 'Black'],
-	   '18-Fog': ['Brown', 'Gray'],
-       'Yellow': ['zxjzjkxvz']}
+	   '18-Fog': ['Brown', 'Gray']}
 
 class ProductAttribute(models.Model):
 	_inherit = 'product.attribute'
@@ -120,7 +120,16 @@ class ProductAttribute(models.Model):
 
 class ProductTemplate(models.Model):
 	_inherit = 'product.template'
-	
+
+	is_family_color = fields.Boolean(string='is update', compute='_compute_family_color')
+
+	@api.depends('is_family_color')
+	def _compute_family_color(self):
+		for record in self:
+			is_update = self.update_family_color()  	
+			record.is_family_color = is_update
+
+
 	def update_family_color(self):
 		for product in self.env['product.template'].search([]):
 			product.update_family_color_val()
@@ -130,7 +139,8 @@ class ProductTemplate(models.Model):
 		product_attribute_value = self.env['product.attribute.value']
 		product_attribute_color = self.env['product.attribute'].search([('name', '=', 'Color')], limit=1)
 		product_attribute_ids = self.env['product.attribute'].search([('id', 'in', [att.attribute_id.id for att in self.attribute_line_desc_ids])])
-		product_color = product_attribute_ids.search([('name', '=', 'Color')], limit=1)
+		#product_color = product_attribute_ids.search([('name', '=', 'Color'),], limit=1)
+		product_color = self.attribute_line_desc_ids.filtered(lambda r: r.attribute_id.name == 'Color')
 		product_family_attribute_color = self.env['product.attribute'].search([('name', '=', 'Family Color')], limit=1)
 		product_family_line_color = self.attribute_line_desc_ids.filtered(lambda r: r.attribute_id.name == 'Family Color')
 		product_family_color_value_ids = []
@@ -160,7 +170,9 @@ class ProductTemplate(models.Model):
 						'name': family_color
 					})
 				product_family_color_value_ids.append(attribute_value_id)
-				print(attribute_value_id.name)
+				_logger.error(attribute_value_id.name)
+			_logger.error(var[color])
+		_logger.error(color_name_list)
 		if not product_family_color_value_ids:
 			return False
 
