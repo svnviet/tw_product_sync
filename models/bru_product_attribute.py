@@ -121,19 +121,19 @@ class ProductAttribute(models.Model):
 class ProductTemplate(models.Model):
 	_inherit = 'product.template'
 
-	is_update_family_color = fields.Boolean(string='is update', compute='_compute_family_color')
+	is_family_color = fields.Boolean(string='is update', compute='_compute_family_color')
 
 	@api.depends('is_family_color')
 	def _compute_family_color(self):
 		for record in self:
 			is_update = self.update_family_color_val()  	
-			record.is_update_family_color = is_update if is_update else False
+			record.is_family_color = is_update if is_update else False
 
 
 	def update_family_color(self):
 		for product in self.env['product.template'].search([]):
 			is_update = product.update_family_color_val()
-			product.is_update_family_color = is_update if is_update else False
+			product.is_family_color = is_update if is_update else False
 	def update_family_color_val(self):
 		""" Update family color following var list mapping color """
 		product_attribute_value = self.env['product.attribute.value']
