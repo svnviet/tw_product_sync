@@ -121,25 +121,24 @@ class ProductAttribute(models.Model):
 class ProductTemplate(models.Model):
 	_inherit = 'product.template'
 
-	is_family_color = fields.Boolean(string='is update', compute='_compute_family_color')
+	is_update_family_color = fields.Boolean(string='is update', compute='_compute_family_color')
 
 	@api.depends('is_family_color')
 	def _compute_family_color(self):
 		for record in self:
-			is_update = self.update_family_color()  	
-			record.is_family_color = is_update
+			is_update = self.update_family_color_val()  	
+			record.is_update_family_color = is_update if is_update else False
 
 
 	def update_family_color(self):
 		for product in self.env['product.template'].search([]):
-			product.update_family_color_val()
-			
+			is_update = product.update_family_color_val()
+			product.is_update_family_color = is_update if is_update else False
 	def update_family_color_val(self):
 		""" Update family color following var list mapping color """
 		product_attribute_value = self.env['product.attribute.value']
 		product_attribute_color = self.env['product.attribute'].search([('name', '=', 'Color')], limit=1)
 		product_attribute_ids = self.env['product.attribute'].search([('id', 'in', [att.attribute_id.id for att in self.attribute_line_desc_ids])])
-		#product_color = product_attribute_ids.search([('name', '=', 'Color'),], limit=1)
 		product_color = self.attribute_line_desc_ids.filtered(lambda r: r.attribute_id.name == 'Color')
 		product_family_attribute_color = self.env['product.attribute'].search([('name', '=', 'Family Color')], limit=1)
 		product_family_line_color = self.attribute_line_desc_ids.filtered(lambda r: r.attribute_id.name == 'Family Color')
@@ -170,12 +169,10 @@ class ProductTemplate(models.Model):
 						'name': family_color
 					})
 				product_family_color_value_ids.append(attribute_value_id)
-				_logger.error(attribute_value_id.name)
-			_logger.error(var[color])
-		_logger.error(color_name_list)
 		if not product_family_color_value_ids:
 			return False
 
 		product_family_line_color.write({
 			'value_ids': [(6, 0, [pc.id for pc in product_family_color_value_ids])]
 		})
+		return True
